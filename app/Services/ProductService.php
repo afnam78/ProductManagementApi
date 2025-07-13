@@ -3,12 +3,16 @@
 namespace App\Services;
 
 use App\Models\Product;
-use Exception;
+use App\Repositories\ProductRepository;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class ProductService
+readonly class ProductService
 {
+    public function __construct(private ProductRepository $repository)
+    {
+    }
+
     /**
      * Creates a new product associated with the authenticated user.
      *
@@ -22,12 +26,7 @@ class ProductService
      */
     public function create(array $data, int $userId): Product
     {
-        return Product::create([
-            'name' => data_get($data, 'name'),
-            'description' => data_get($data, 'description'),
-            'price' => (float) data_get($data, 'price'),
-            'user_id' => $userId,
-        ]);
+        return $this->repository->create($data, $userId);
     }
 
     /**
@@ -42,9 +41,9 @@ class ProductService
      *
      * @throws ModelNotFoundException If the product is not found.
      */
-    public function get(int $product): Product
+    public function get(int $product, array $select = ['*']): Product
     {
-        return Product::findOrFail($product);
+        return $this->repository->get($product, $select);
     }
 
     /**
@@ -55,33 +54,25 @@ class ProductService
      * The method updates the product's name, description, and price if these fields
      * are present in the provided data.
      *
-     * @param Product $product The product instance to be updated.
+     * @param int $product
      * @param array $data The data containing the updated fields for the product.
      * @param int $userId The ID of the user attempting to update the product.
      *
-     * @return void
+     * @return Product
      *
      * @throws AuthenticationException If the user is not authorized to update the product.
      */
-    public function update(Product $product, array $data, int $userId): void
+    public function update(int $product, array $data, int $userId): Product
     {
+        $product = $this->get($product);
+
         if ($product->user_id !== $userId) {
             throw new AuthenticationException('Unauthorized action');
         }
 
-        if (isset($data['name'])) {
-            $product->name = data_get($data, 'name');
-        }
+        $this->repository->update($product, $data);
 
-        if (isset($data['description'])) {
-            $product->description = data_get($data, 'description');
-        }
-
-        if (isset($data['price'])) {
-            $product->price = (float) data_get($data, 'price');
-        }
-
-        $product->save();
+        return $product;
     }
 
     /**
@@ -91,22 +82,21 @@ class ProductService
      * the specified product. If the user is not authorized, an exception is thrown.
      * If the deletion fails, another exception is thrown.
      *
-     * @param Product $product The product instance to be deleted.
+     * @param int $product The product instance to be deleted.
      * @param int $id The ID of the user attempting to delete the product.
      *
      * @return void
      *
      * @throws AuthenticationException If the user is not authorized to delete the product.
-     * @throws Exception If the product deletion fails.
      */
-    public function delete(Product $product, int $id): void
+    public function delete(int $product, int $id): void
     {
+        $product = $this->get($product, ['id', 'user_id']);
+
         if ($product->user_id !== $id) {
             throw new AuthenticationException('Unauthorized action');
         }
 
-        if (!$product->delete()) {
-            throw new Exception('Failed to delete product');
-        }
+        $this->repository->delete($product);
     }
 }

@@ -14,13 +14,12 @@ class UpdateProductController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(UpdateProductRequest $request, $product): \Illuminate\Http\JsonResponse
+    public function __invoke(UpdateProductRequest $request, int $product): \Illuminate\Http\JsonResponse
     {
         try {
             $validated = $request->validated();
-            $product = $this->service->get($product);
 
-            $this->service->update(product: $product, data: $validated, userId: auth()->id());
+            $product = $this->service->update(product: $product, data: $validated, userId: auth()->id());
 
             return response()->json(['message' => 'Product updated successfully', 'product' => $product]);
         } catch (ModelNotFoundException $exception) {
