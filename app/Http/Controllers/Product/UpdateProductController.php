@@ -9,9 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UpdateProductController extends Controller
 {
-    public function __construct(private readonly ProductService $service)
-    {
-    }
+    public function __construct(private readonly ProductService $service) {}
 
     /**
      * Handle the incoming request.
@@ -22,7 +20,7 @@ class UpdateProductController extends Controller
             $validated = $request->validated();
             $product = $this->service->get($product);
 
-            $this->service->update(product: $product, data:  $validated, userId: auth()->id());
+            $this->service->update(product: $product, data: $validated, userId: auth()->id());
 
             return response()->json(['message' => 'Product updated successfully', 'product' => $product]);
         } catch (ModelNotFoundException $exception) {

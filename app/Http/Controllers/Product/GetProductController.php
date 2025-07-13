@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class GetProductController extends Controller
 {
-    public function __construct(private readonly ProductService $service)
-    {
-    }
+    public function __construct(private readonly ProductService $service) {}
 
     /**
      * Handle the incoming request.
@@ -33,6 +31,7 @@ class GetProductController extends Controller
                 'error' => $e->getMessage(),
                 'product_id' => $product,
             ]);
+
             return response()->json([
                 'message' => 'An error occurred while retrieving the product',
             ], 500);

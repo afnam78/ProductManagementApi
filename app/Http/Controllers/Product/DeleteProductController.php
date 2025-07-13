@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class DeleteProductController extends Controller
 {
-    public function __construct(private readonly ProductService $service)
-    {
-    }
+    public function __construct(private readonly ProductService $service) {}
 
     /**
      * Handle the incoming request.

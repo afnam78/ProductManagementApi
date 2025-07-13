@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class CreateProductController extends Controller
 {
-    public function __construct(private readonly ProductService $service)
-    {
-    }
+    public function __construct(private readonly ProductService $service) {}
 
     /**
      * Handle the incoming request.
@@ -25,7 +23,7 @@ class CreateProductController extends Controller
 
             $product = $this->service->create(
                 data: $validatedData,
-                userId:  $userId
+                userId: $userId
             );
 
             return response()->json([
@@ -34,7 +32,7 @@ class CreateProductController extends Controller
             ], 201);
 
         } catch (\Exception $exception) {
-            Log::debug('Error creating product' , [
+            Log::debug('Error creating product', [
                 'user_id' => $userId,
                 'data' => $request->all(),
                 'exception' => $exception->getMessage(),
